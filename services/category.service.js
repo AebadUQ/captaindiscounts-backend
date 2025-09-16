@@ -1,5 +1,6 @@
 const Category = require("../models/category.model");
 const ApiError = require("../utils/ApiError");
+const { Op } = require("sequelize");
 
 const categoryService = {
     createCategory: async (name, slug, url, description) => {
