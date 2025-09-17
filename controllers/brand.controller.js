@@ -15,13 +15,53 @@ const brandController = {
 
         }
         const brand = await brandService.createBrand(
-           req.body
+            req.body
         );
 
         res.status(201).json({
             success: true,
             message: "Brand created successfully",
             data: brand,
+        });
+    }),
+
+    getAllBrands: catchAsync(async (req, res) => {
+        const { page, limit, search } = req.query;
+        const result = await brandService.getAllBrands({ page, limit, search });
+
+        res.status(200).json({
+            success: true,
+            message: "Brands fetched successfully",
+            data: result,
+        });
+    }),
+    getBrandByID: catchAsync(async (req, res) => {
+
+        const brand = await brandService.getBrandByID(req.params.id)
+        res.status(200).json({
+            success: true,
+            message: "Brand fetched successfully",
+            data: brand,
+        });
+    },
+
+
+    ),
+    deleteBrand: catchAsync(async (req, res) => {
+        const result = await brandService.deleteBrand(req.params.id);
+        res.status(200).json({
+            success: true,
+            ...result,
+        });
+    }),
+    updateBrand: catchAsync(async (req, res) => {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        const updatedBrand = await brandService.updateBrand(id, updateData)
+        res.status(200).json({
+            success: true,
+            data: updatedBrand,
         });
     })
 
