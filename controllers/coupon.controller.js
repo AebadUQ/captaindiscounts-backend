@@ -56,6 +56,13 @@ const couponController = {
             data: coupon,
         });
     }),
+    deleteCoupon: catchAsync(async (req, res) => {
+        const result = await couponService.deleteCoupon(req.params.id);
+        res.status(200).json({
+            success: true,
+            ...result,
+        });
+    }),
 
 }
 module.exports = couponController;

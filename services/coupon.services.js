@@ -111,13 +111,22 @@ const couponService = {
     const coupon = await Coupon.findByPk(id);
 
     if (!coupon) {
-      throw new ApiError(404,"Coupon not found");
+      throw new ApiError(404, "Coupon not found");
     }
-    coupon.uses +=1;
-    coupon.lastUsed= new Date()
+    coupon.uses += 1;
+    coupon.lastUsed = new Date()
     await coupon.save()
     return coupon;
-  }
+  },
+  deleteCoupon: async (id) => {
+    const coupon = await Coupon.findOne({ where: { id, deletedAt: null } });
+    if (!coupon) {
+      throw new ApiError(404, "Coupon not found");
+    }
+
+    await coupon.destroy(); // soft delete
+    return { message: "Coupon deleted successfully" };
+  },
 };
 
 module.exports = couponService;

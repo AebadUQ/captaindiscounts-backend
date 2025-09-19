@@ -6,4 +6,6 @@ router.post("/create", authMiddleware, couponController.createCoupon);
 router.get("/",couponController.getAllCoupons);
 router.get("/:id",couponController.getCouponByID);
 router.patch("/:id/use",couponController.updateUses)
+router.delete("/:id",authMiddleware,couponController.deleteCoupon)
+
 module.exports = router;
