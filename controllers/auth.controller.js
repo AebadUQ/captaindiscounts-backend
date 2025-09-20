@@ -22,7 +22,7 @@ const adminController = {
       const { token, admin } = await adminService.loginAdmin(email, password);
 
       res.status(200).json({
-        success: true,
+        success: 200,
         message: "Admin login successful",
         token,
         data: admin,

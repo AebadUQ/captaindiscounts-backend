@@ -18,7 +18,7 @@ const Coupon = sequelize.define(
       allowNull: false,
     },
     state: {
-      type: DataTypes.ENUM('featured', 'certified', 'validated'),
+      type: DataTypes.ENUM('featured', 'verified', 'validated'),
       allowNull: false,
       defaultValue: 'validated',
     },

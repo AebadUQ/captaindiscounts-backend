@@ -36,6 +36,13 @@ const brandService = {
             limit,
             offset,
             order: [["createdAt", "DESC"]],
+            include: [
+                {
+                    model: Category,
+                    where: { deletedAt: null },
+                    attributes: ["id", "name"], 
+                },
+            ],
         });
 
         return {
@@ -48,13 +55,25 @@ const brandService = {
             },
         };
     },
-    getBrandByID: async (id) => {
-        const brand = await Brand.findOne({ where: { id, deletedAt: null } });
-        if (!brand) {
-            throw new ApiError("No Brand found", 404);
-        }
-        return brand;
-    },
+
+  getBrandByID: async (id) => {
+  const brand = await Brand.findOne({
+    where: { id, deletedAt: null },
+    include: [
+      {
+        model: Category,
+        attributes: ["id", "name"], // only fetch id and name
+      },
+    ],
+  });
+
+  if (!brand) {
+    throw new ApiError("No Brand found", 404);
+  }
+
+  return brand;
+},
+
     deleteBrand: async (id) => {
         const brand = await Brand.findOne({ where: { id, deletedAt: null } });
         if (!brand) {
@@ -64,35 +83,44 @@ const brandService = {
         await brand.destroy(); // soft delete
         return { message: "Brand deleted successfully" };
     },
-    updateBrand: async (id, updateData) => {
-        const brand = await Brand.findOne({ where: { id, deletedAt: null } });
-        if (!brand) throw new ApiError("Brand not found", 404);
+  updateBrand: async (id, updateData) => {
+    // 1️⃣ Find the brand
+    const brand = await Brand.findOne({ where: { id, deletedAt: null } });
+    if (!brand) throw new ApiError(404, "Brand not found");
 
-        // 2️⃣ Check if categoryId is being updated
-        if (updateData.categoryId && updateData.categoryId !== brand.categoryId) {
-            const category = await Category.findOne({ where: { id: updateData.categoryId, deletedAt: null } });
-            if (!category) throw new ApiError("Category not found", 404);
-            brand.categoryId = updateData.categoryId;
-        }
-
-        // 3️⃣ Handle slug update separately for uniqueness
-        if (updateData.slug && updateData.slug !== brand.slug) {
-            const existing = await Brand.findOne({ where: { slug: updateData.slug, deletedAt: null } });
-            if (existing) throw new ApiError("Slug already exists for an active Brand", 400);
-            brand.slug = updateData.slug;
-        }
-
-        // 4️⃣ Dynamically update all other fields except slug and categoryId
-        Object.keys(updateData).forEach(key => {
-            if (!["slug", "categoryId"].includes(key) && updateData[key] !== undefined) {
-                brand[key] = updateData[key];
-            }
-        });
-
-        // 5️⃣ Save the brand
-        await brand.save();
-        return brand;
+    // 2️⃣ Handle categoryId update
+   // 2️⃣ Handle categoryId update
+if ("categoryId" in updateData && updateData.categoryId !== brand.categoryId) {
+    if (!updateData.categoryId) {
+        // prevent unsetting
+        throw new ApiError(400, "Category must be selected");
+    } else {
+        const category = await Category.findOne({ where: { id: updateData.categoryId, deletedAt: null } });
+        if (!category) throw new ApiError(404, "Category not found");
+        brand.categoryId = updateData.categoryId;
     }
+}
+
+
+    // 3️⃣ Handle slug update for uniqueness
+    if ("slug" in updateData && updateData.slug !== brand.slug) {
+        const existing = await Brand.findOne({ where: { slug: updateData.slug, deletedAt: null } });
+        if (existing) throw new ApiError(400, "Slug already exists for an active Brand");
+        brand.slug = updateData.slug;
+    }
+
+    // 4️⃣ Dynamically update all other fields except slug and categoryId
+    Object.keys(updateData).forEach((key) => {
+        if (!["slug", "categoryId"].includes(key) && updateData[key] !== undefined) {
+            brand[key] = updateData[key];
+        }
+    });
+
+    // 5️⃣ Save and return the brand
+    await brand.save();
+    return brand;
+}
+
 };
 
 module.exports = brandService;

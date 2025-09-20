@@ -59,6 +59,15 @@ const couponService = {
       limit,
       offset,
       order: [["createdAt", "DESC"]],
+        include: [
+        {
+          model: Brand,
+                              where: { deletedAt: null },
+
+          as: "brand",
+          attributes: ["id", "brandName"], // only bring required fields
+        },
+      ],
     });
 
     return {
@@ -72,41 +81,54 @@ const couponService = {
     };
   },
   getCouponByID: async (id) => {
-    const coupon = await Coupon.findOne({ where: { id, deletedAt: null } });
+    const coupon = await Coupon.findOne({ where: { id, deletedAt: null },
+     include: [
+        {
+          model: Brand,
+                              where: { deletedAt: null },
+
+          as: "brand",
+          attributes: ["id", "brandName"], // only bring required fields
+        },
+      ], });
     console.log("coupon", coupon)
     if (!coupon) {
       throw new ApiError(404, "No Coupon found");
     }
     return coupon;
   },
-  updateCoupon: async (id, updateData) => {
-    const coupon = await Coupon.findByPk(id);
+ updateCoupon: async (id, updateData) => {
+  const coupon = await Coupon.findByPk(id);
 
-    if (!coupon) {
-      throw new ApiError("Coupon not found", 404);
-    }
+  if (!coupon) {
+    throw new ApiError("Coupon not found", 404);
+  }
 
-    // Agar brandId updateData me aya hai to check karo
-    if (updateData.brandId) {
-      const brand = await Brand.findByPk(updateData.brandId);
-      if (!brand) {
-        throw new ApiError(400, "Invalid brandId, brand not found");
-      }
-    }
+  // Agar brandId null ya undefined hai → error throw karo
+  if (updateData.brandId === undefined || updateData.brandId === null) {
+    throw new ApiError(400, "Brand not selected");
+  }
 
-    // Agar couponType update kar rahe ho to couponCode ka rule apply karo
-    if (updateData.couponType === "coupon_code" && !updateData.couponCode) {
-      throw new ApiError(400, "Coupon code is required when type is coupon_code",);
-    }
-    if (updateData.couponType === "deal" && updateData.couponCode) {
-      throw new ApiError(400, "Coupon code should not exist when type is deal");
-    }
+  // Agar brandId diya hai to check karo
+  const brand = await Brand.findByPk(updateData.brandId);
+  if (!brand) {
+    throw new ApiError(400, "Invalid brandId, brand not found");
+  }
 
-    // Update fields safely
-    await coupon.update(updateData);
+  // CouponType rules
+  if (updateData.couponType === "coupon_code" && !updateData.couponCode) {
+    throw new ApiError(400, "Coupon code is required when type is coupon_code");
+  }
+  if (updateData.couponType === "deal" && updateData.couponCode) {
+    throw new ApiError(400, "Coupon code should not exist when type is deal");
+  }
 
-    return coupon;
-  },
+  // Update safely
+  await coupon.update(updateData);
+
+  return coupon;
+},
+
   updateUse: async (id) => {
     const coupon = await Coupon.findByPk(id);
 

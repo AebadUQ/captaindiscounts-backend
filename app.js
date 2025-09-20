@@ -5,12 +5,19 @@ const adminRoutes = require("./routes/auth.routes");
 const categoryRoutes = require("./routes/category.routes");
 const brandRoutes = require("./routes/brand.routes");
 const couponRoutes = require("./routes/coupon.routes");
+const cors = require("cors");
 
 const app = express();
+const allowedOrigins = ["http://localhost:3000", "https://myapp.com"];
 
 app.use(express.json());
 app.use(morgan("dev"));
-
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/category", categoryRoutes);
 app.use("/api/admin/brand", brandRoutes);
