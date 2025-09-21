@@ -39,8 +39,10 @@ const brandService = {
             include: [
                 {
                     model: Category,
+                            as: "category", // ⚡ must match Brand.belongsTo alias
+
                     where: { deletedAt: null },
-                    attributes: ["id", "name"], 
+                    attributes: ["id", "name"],
                 },
             ],
         });
@@ -56,23 +58,25 @@ const brandService = {
         };
     },
 
-  getBrandByID: async (id) => {
-  const brand = await Brand.findOne({
-    where: { id, deletedAt: null },
-    include: [
-      {
-        model: Category,
-        attributes: ["id", "name"], // only fetch id and name
-      },
-    ],
-  });
+    getBrandByID: async (id) => {
+        const brand = await Brand.findOne({
+            where: { id, deletedAt: null },
+            include: [
+                {
+                    model: Category,
+                            as: "category", // ⚡ must match Brand.belongsTo alias
 
-  if (!brand) {
-    throw new ApiError("No Brand found", 404);
-  }
+                    attributes: ["id", "name"], // only fetch id and name
+                },
+            ],
+        });
 
-  return brand;
-},
+        if (!brand) {
+            throw new ApiError("No Brand found", 404);
+        }
+
+        return brand;
+    },
 
     deleteBrand: async (id) => {
         const brand = await Brand.findOne({ where: { id, deletedAt: null } });
@@ -83,43 +87,43 @@ const brandService = {
         await brand.destroy(); // soft delete
         return { message: "Brand deleted successfully" };
     },
-  updateBrand: async (id, updateData) => {
-    // 1️⃣ Find the brand
-    const brand = await Brand.findOne({ where: { id, deletedAt: null } });
-    if (!brand) throw new ApiError(404, "Brand not found");
+    updateBrand: async (id, updateData) => {
+        // 1️⃣ Find the brand
+        const brand = await Brand.findOne({ where: { id, deletedAt: null } });
+        if (!brand) throw new ApiError(404, "Brand not found");
 
-    // 2️⃣ Handle categoryId update
-   // 2️⃣ Handle categoryId update
-if ("categoryId" in updateData && updateData.categoryId !== brand.categoryId) {
-    if (!updateData.categoryId) {
-        // prevent unsetting
-        throw new ApiError(400, "Category must be selected");
-    } else {
-        const category = await Category.findOne({ where: { id: updateData.categoryId, deletedAt: null } });
-        if (!category) throw new ApiError(404, "Category not found");
-        brand.categoryId = updateData.categoryId;
-    }
-}
-
-
-    // 3️⃣ Handle slug update for uniqueness
-    if ("slug" in updateData && updateData.slug !== brand.slug) {
-        const existing = await Brand.findOne({ where: { slug: updateData.slug, deletedAt: null } });
-        if (existing) throw new ApiError(400, "Slug already exists for an active Brand");
-        brand.slug = updateData.slug;
-    }
-
-    // 4️⃣ Dynamically update all other fields except slug and categoryId
-    Object.keys(updateData).forEach((key) => {
-        if (!["slug", "categoryId"].includes(key) && updateData[key] !== undefined) {
-            brand[key] = updateData[key];
+        // 2️⃣ Handle categoryId update
+        // 2️⃣ Handle categoryId update
+        if ("categoryId" in updateData && updateData.categoryId !== brand.categoryId) {
+            if (!updateData.categoryId) {
+                // prevent unsetting
+                throw new ApiError(400, "Category must be selected");
+            } else {
+                const category = await Category.findOne({ where: { id: updateData.categoryId, deletedAt: null } });
+                if (!category) throw new ApiError(404, "Category not found");
+                brand.categoryId = updateData.categoryId;
+            }
         }
-    });
 
-    // 5️⃣ Save and return the brand
-    await brand.save();
-    return brand;
-}
+
+        // 3️⃣ Handle slug update for uniqueness
+        if ("slug" in updateData && updateData.slug !== brand.slug) {
+            const existing = await Brand.findOne({ where: { slug: updateData.slug, deletedAt: null } });
+            if (existing) throw new ApiError(400, "Slug already exists for an active Brand");
+            brand.slug = updateData.slug;
+        }
+
+        // 4️⃣ Dynamically update all other fields except slug and categoryId
+        Object.keys(updateData).forEach((key) => {
+            if (!["slug", "categoryId"].includes(key) && updateData[key] !== undefined) {
+                brand[key] = updateData[key];
+            }
+        });
+
+        // 5️⃣ Save and return the brand
+        await brand.save();
+        return brand;
+    }
 
 };
 

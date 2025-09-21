@@ -1,16 +1,43 @@
 const Category = require("../models/category.model");
 const ApiError = require("../utils/ApiError");
+const Brand =require("../models/brand.model");
 const { Op } = require("sequelize");
 
 const categoryService = {
     createCategory: async (name, slug, url, description) => {
         const existing = await Category.findOne({ where: { slug, deletedAt: null } });
         if (existing) {
-            throw new ApiError("Category with this slug already exists", 400);
+            throw new ApiError(400,"Category with this slug already exists");
         }
 
         const category = await Category.create({ name, slug, url, description });
         return category;
+    },
+getCategoryWithBrand: async () => {
+      const categories = await Category.findAll({
+      where: { deletedAt: null },
+      include: [
+        {
+          model: Brand,
+          attributes: [
+            "id",
+            "brandName",
+            "slug",
+            "storeurl",
+            "affiliateUrl",
+            "brandImage",
+            "description",
+          ],
+        },
+      ],
+      attributes: ["id", "name", "slug", "url", "description"],
+    });
+
+    if (!categories || categories.length === 0) {
+      throw new ApiError(404, "No categories found");
+    }
+
+    return categories;
     },
 
     getAllCategories: async ({ page = 1, limit = 10, search = "" }) => {
@@ -50,14 +77,14 @@ const categoryService = {
     getCategoryByID: async (id) => {
         const category = await Category.findOne({ where: { id, deletedAt: null } });
         if (!category) {
-            throw new ApiError("No Category found", 404);
+            throw new ApiError(404,"No Category found");
         }
         return category;
     },
     deleteCategory: async (id) => {
         const category = await Category.findOne({ where: { id, deletedAt: null } });
         if (!category) {
-            throw new ApiError("Category not found", 404);
+            throw new ApiError(404,"Category not found");
         }
 
         await category.destroy(); // soft delete
@@ -66,12 +93,12 @@ const categoryService = {
     updateCategory: async (id, updateData) => {
   // Find the category (active only)
   const category = await Category.findOne({ where: { id, deletedAt: null } });
-  if (!category) throw new ApiError("Category not found", 404);
+  if (!category) throw new ApiError(404,"Category not found");
 
   // Handle slug update separately for uniqueness
   if (updateData.slug && updateData.slug !== category.slug) {
     const existing = await Category.findOne({ where: { slug: updateData.slug, deletedAt: null } });
-    if (existing) throw new ApiError("Slug already exists for an active category", 400);
+    if (existing) throw new ApiError(400,"Slug already exists for an active category");
     category.slug = updateData.slug;
   }
 

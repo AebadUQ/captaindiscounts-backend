@@ -63,6 +63,18 @@ const couponController = {
             ...result,
         });
     }),
+    getCouponsWithBrandAndCategory: catchAsync(async (req, res) => {
+    const { page, limit, search } = req.query;
+
+    const result = await couponService.getCouponsWithBrandAndCategory({ page, limit, search });
+
+    res.status(200).json({
+      success: true,
+      message: "Coupons fetched successfully",
+      data: result.data,
+      metaData: result.metaData,
+    });
+  }),
 
 }
 module.exports = couponController;

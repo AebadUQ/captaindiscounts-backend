@@ -46,7 +46,10 @@ const Brand = sequelize.define(
 );
 
 // Relations
-Category.hasMany(Brand, { foreignKey: "categoryId" });
-Brand.belongsTo(Category, { foreignKey: "categoryId" });
+Category.hasMany(Brand, { foreignKey: "categoryId", as: "category" });
+
+// Category.hasMany(Brand, { foreignKey: "categoryId" });
+// Brand.belongsTo(Category, { foreignKey: "categoryId" });
+Brand.belongsTo(Category, { foreignKey: "categoryId", as: "category" });
 
 module.exports = Brand;

@@ -1,6 +1,7 @@
 const Coupon = require('../models/coupon.model');
 const Brand = require('../models/brand.model');
 const ApiError = require('../utils/ApiError');
+const Category = require('../models/category.model');
 
 const couponService = {
   createCoupon: async (data) => {
@@ -66,6 +67,15 @@ const couponService = {
 
           as: "brand",
           attributes: ["id", "brandName"], // only bring required fields
+          include: [
+      {
+        model: Category,
+        as: "category",
+        attributes: ["id", "name"],
+        where: { deletedAt: null },
+        required: true, // only include brand if category exists
+      },
+    ],
         },
       ],
     });
@@ -148,7 +158,78 @@ const couponService = {
 
     await coupon.destroy(); // soft delete
     return { message: "Coupon deleted successfully" };
-  },
+  },getCouponsWithBrandAndCategory: async ({ page = 1, limit = 10, search = "" }) => {
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const offset = (page - 1) * limit;
+
+  const whereCondition = {
+    deletedAt: null,
+    ...(search
+      ? {
+          [Op.or]: [
+            { name: { [Op.iLike]: `%${search}%` } },
+            { couponCode: { [Op.iLike]: `%${search}%` } },
+          ],
+        }
+      : {}),
+  };
+
+  const { rows, count } = await Coupon.findAndCountAll({
+    where: whereCondition,
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: Brand,
+        as: "brand",
+        attributes: ["brandName", "brandImage", "storeurl", "affiliateUrl", "categoryId"],
+        required: true, // brand must exist
+        include: [
+          {
+            model: Category,
+            as: "category",
+            attributes: ["name"],
+            where: { deletedAt: null },
+            required: true, // ✅ only include brand if category exists and is not deleted
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!rows || rows.length === 0) {
+    throw new ApiError("No coupons found", 404);
+  }
+
+  const data = rows.map(coupon => ({
+    id:coupon.id,
+    brandLogo: coupon.brand.brandImage,
+    brandName: coupon.brand.brandName,
+    couponType: coupon.couponType,
+    state: coupon.state,
+    couponTitle: coupon.name,
+    description: coupon.detail,
+    uses: coupon.uses,
+    lastUsed: coupon.lastUsed,
+    codeText: coupon.couponCode,
+    category: coupon.brand.category.name, // always exists now
+    affiliateUrl: coupon.affiliateUrl,
+    storeUrl: coupon.brand.storeurl,
+  }));
+
+  return {
+    data,
+    metaData: {
+      total: count,
+      page,
+      pageSize: limit,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+},
+
 };
 
 module.exports = couponService;

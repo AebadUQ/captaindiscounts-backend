@@ -7,7 +7,7 @@ const categoryController = {
     const { name, slug, url, description } = req.body;
 
     if (!name || !slug || !url) {
-      throw new ApiError("Name, slug, and url are required", 400);
+      throw new ApiError(400,"Name, slug, and url are required");
     }
 
     const category = await categoryService.createCategory(
@@ -31,6 +31,16 @@ const categoryController = {
   res.status(200).json({
     success: true,
     message: "Categories fetched successfully",
+    data: result,
+  });
+}),
+//CAegory with brand
+ getCategoryWithBrands: catchAsync(async (req, res) => {
+  const result = await categoryService.getCategoryWithBrand();
+
+  res.status(200).json({
+    success: true,
+    message: "Category with breands data fetched successfully",
     data: result,
   });
 }),
@@ -59,7 +69,8 @@ const categoryController = {
     success: true,
     data: updatedCategory,
   });
-  })
+  }),
+  
 };
 
 module.exports = categoryController;
