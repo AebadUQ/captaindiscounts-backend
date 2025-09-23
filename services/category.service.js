@@ -19,6 +19,8 @@ getCategoryWithBrand: async () => {
       include: [
         {
           model: Brand,
+                as: "brands", // 🔑 match alias here
+
           attributes: [
             "id",
             "brandName",
