@@ -63,7 +63,35 @@ const brandController = {
             success: true,
             data: updatedBrand,
         });
-    })
+    }),
+     rateBrand: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { isPositive } = req.body;
+
+    if (typeof isPositive !== "boolean") {
+      throw new ApiError("isPositive must be true or false", 400);
+    }
+
+    const brand = await brandService.rateBrand(id, isPositive);
+
+    res.status(201).json({
+      success: true,
+      message: "Feedback submitted successfully",
+      data: brand,
+    });
+  }),
+    getBrandProfile: catchAsync(async (req, res) => {
+
+        const brand = await brandService.getBrandProfile(req.params.id)
+        res.status(200).json({
+            success: true,
+            message: "Brand Profile fetched successfully",
+            data: brand,
+        });
+    },
+
+
+    ),
 
 }
 module.exports = brandController;

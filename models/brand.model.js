@@ -6,7 +6,7 @@ const Brand = sequelize.define(
   "Brand",
   {
     brandName: {
-      type: DataTypes.STRING(255), // limit 255, usually fine
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     slug: {
@@ -14,19 +14,19 @@ const Brand = sequelize.define(
       allowNull: false,
     },
     storeurl: {
-      type: DataTypes.STRING(500), // increase length for long URLs
+      type: DataTypes.STRING(500),
       allowNull: false,
     },
     affiliateUrl: {
-      type: DataTypes.STRING(500), // increase length for long URLs
+      type: DataTypes.STRING(500),
       allowNull: false,
     },
     brandImage: {
-      type: DataTypes.STRING(500), // safer for long URLs
+      type: DataTypes.STRING(500),
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT, // unlimited length
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     categoryId: {
@@ -38,18 +38,25 @@ const Brand = sequelize.define(
       },
       onDelete: "CASCADE",
     },
+    rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0, // average rating
+      allowNull: false,
+    },
+    ratingCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0, // total number of ratings
+      allowNull: false,
+    },
   },
   {
     timestamps: true,
-    paranoid: true, // soft delete
+    paranoid: true,
   }
 );
 
 // Relations
 Category.hasMany(Brand, { foreignKey: "categoryId", as: "category" });
-
-// Category.hasMany(Brand, { foreignKey: "categoryId" });
-// Brand.belongsTo(Category, { foreignKey: "categoryId" });
 Brand.belongsTo(Category, { foreignKey: "categoryId", as: "category" });
 
 module.exports = Brand;
