@@ -44,6 +44,11 @@ const webBlogService = {
       },
     };
   },
+ getWebBlogBySlug: async (slug) => {
+    const webBlog = await WebBlog.findOne({ where: { slug, deletedAt: null } });
+    if (!webBlog) throw new ApiError(404, "WebBlog not found");
+    return webBlog;
+  },
 
   getWebBlogByID: async (id) => {
     const webBlog = await WebBlog.findOne({ where: { id, deletedAt: null } });

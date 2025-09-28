@@ -29,6 +29,14 @@ const webBlogController = {
       data: webBlog,
     });
   }),
+ getWebBlogBySlug: catchAsync(async (req, res) => {
+    const webBlog = await webBlogService.getWebBlogBySlug(req.params.slug);
+    res.status(200).json({
+      success: true,
+      message: "WebBlog fetched successfully",
+      data: webBlog,
+    });
+  }),
 
   updateWebBlog: catchAsync(async (req, res) => {
     const updatedWebBlog = await webBlogService.updateWebBlog(req.params.id, req.body);

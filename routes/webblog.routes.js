@@ -12,6 +12,7 @@ router.get("/", webBlogController.getAllWebBlogs);
 
 // Get a single web blog by ID
 router.get("/:id", webBlogController.getWebBlogByID);
+router.get("/slug/:slug", webBlogController.getWebBlogBySlug);
 
 // Update a web blog by ID
 router.put("/:id", authMiddleware, webBlogController.updateWebBlog);
