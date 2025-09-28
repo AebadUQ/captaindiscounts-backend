@@ -4,6 +4,8 @@ const Category = require('../models/category.model')
 const Brand = require('../models/brand.model')
 const Coupon = require('../models/coupon.model')
 const Blog = require('../models/blog.model')
+const Faq = require('../models/faq.model')
+
 const { deleteBrand } = require("../controllers/brand.controller");
 const brandService = {
     createBrand: async ({ brandName, slug, storeurl, brandImage, affiliateUrl, description, categoryId }) => {
@@ -152,13 +154,13 @@ getBrandProfile: async (id) => {
     include: [
       {
         model: Category,
-        as: 'category',
-        attributes: ['id', 'name'],
+        as: "category",
+        attributes: ["id", "name"],
       },
     ],
   });
 
-  if (!brand) throw new ApiError(404, 'No Brand found');
+  if (!brand) throw new ApiError(404, "No Brand found");
 
   // 2️⃣ Get coupons for this brand
   const coupons = await Coupon.findAll({
@@ -167,20 +169,20 @@ getBrandProfile: async (id) => {
       deletedAt: null,
     },
     attributes: [
-      'id',
-      'name',
-      'couponCode',
-      'couponType',
-      'affiliateUrl',
-      'state',
-      'startDate',
-      'endDate',
-      'uses',
-      'lastUsed',
-      'detail',
-      'priority',
+      "id",
+      "name",
+      "couponCode",
+      "couponType",
+      "affiliateUrl",
+      "state",
+      "startDate",
+      "endDate",
+      "uses",
+      "lastUsed",
+      "detail",
+      "priority",
     ],
-    order: [['priority', 'ASC']],
+    order: [["priority", "ASC"]],
   });
 
   // 3️⃣ Get blogs for this brand
@@ -189,29 +191,63 @@ getBrandProfile: async (id) => {
       brandId: brand.id,
       deletedAt: null,
     },
-    order: [['publishDate', 'DESC']],
+    order: [["publishDate", "DESC"]],
   });
 
-  // 4️⃣ Get competitor brands (same category, limit 10, exclude current brand)
+  // 4️⃣ Get FAQs for this brand ✅
+  const faqs = await Faq.findAll({
+    where: {
+      brandId: brand.id,
+      deletedAt: null,
+    },
+    attributes: ["id", "content", "createdAt", "updatedAt"],
+    order: [["createdAt", "DESC"]],
+  });
+
+  // 5️⃣ Get competitor brands (same category, limit 10, exclude current brand)
   const competitors = await Brand.findAll({
     where: {
       categoryId: brand.categoryId,
       deletedAt: null,
       id: { [Op.ne]: brand.id }, // exclude current brand
     },
-    attributes: ['id', 'brandName', 'categoryId',"brandImage","description"],
+    attributes: ["id", "brandName", "categoryId", "brandImage", "description"],
     limit: 10,
-    order: [['id', 'ASC']],
+    order: [["id", "ASC"]],
   });
 
-  // 5️⃣ Combine and return brand data
+  // 6️⃣ Combine and return brand data
   const brandData = brand.toJSON();
   brandData.coupons = coupons;
   brandData.blogs = blogs;
-  brandData.competitor = competitors; // 👈 competitors added
+  brandData.faqs = faqs;
+  brandData.competitor = competitors;
+
+  // 🔥 7️⃣ Aggregates (stats)
+  const totalCoupons = coupons.length;
+  const dealCount = coupons.filter((c) => c.couponType === "deal").length;
+  const couponCodeCount = coupons.filter(
+    (c) => c.couponType === "coupon_code"
+  ).length;
+
+  const lastUpdated =
+    coupons.length > 0
+      ? coupons
+          .filter((c) => c.lastUsed !== null)
+          .sort((a, b) => new Date(b.lastUsed) - new Date(a.lastUsed))[0]
+          ?.lastUsed
+      : null;
+
+  brandData.stats = {
+    totalCoupons,
+    dealCount,
+    couponCodeCount,
+    lastUpdated,
+  };
 
   return brandData;
-},
+}
+
 
 };
 

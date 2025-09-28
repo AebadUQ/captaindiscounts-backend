@@ -69,16 +69,19 @@ const faqService = {
     },
   }},
 
-  
 
-  getFaqByBrand: async (brandId) => {
-    const faq = await Faq.findOne({
-      where: { brandId, deletedAt: null },
-      include: [{ model: Brand, as: "brand", attributes: ["id", "brandName"] }],
-    });
-    if (!faq) throw new ApiError(404, "FAQ not found for this brand");
-    return faq;
-  },
+
+getFaqById: async (id) => {
+  const faq = await Faq.findOne({
+    where: { id, deletedAt: null }, // ✅ use FAQ id, not brandId
+    include: [
+      { model: Brand, as: "brand", attributes: ["id", "brandName"] }
+    ],
+  });
+
+  if (!faq) throw new ApiError(404, "FAQ not found");
+  return faq;
+},
 
   updateFaq: async (id, content) => {
     const faq = await Faq.findOne({ where: { id, deletedAt: null } });

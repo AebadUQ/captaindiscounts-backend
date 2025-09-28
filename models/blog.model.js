@@ -13,7 +13,7 @@ const Blog = sequelize.define(
     slug: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      unique: true,
+      unique: false,
     },
     description: {
       type: DataTypes.TEXT,
@@ -78,7 +78,6 @@ const Blog = sequelize.define(
         model: Brand,
         key: "id",
       },
-      unique: true, // one blog per brand
       onDelete: "CASCADE",
     },
   },

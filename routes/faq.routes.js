@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/create", authMiddleware, faqController.createFaq);
 router.get("/", faqController.getAllFaqs);
-router.get("/brand/:brandId", faqController.getFaqByBrand);
+router.get("/:id",authMiddleware, faqController.getFaqById);
 router.put("/:id", authMiddleware, faqController.updateFaq);
 router.delete("/:id", authMiddleware, faqController.deleteFaq);
 

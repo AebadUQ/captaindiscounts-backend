@@ -18,10 +18,12 @@ const faqController = {
             data: result,
         });
     }),
-  getFaqByBrand: catchAsync(async (req, res) => {
-    const faq = await faqService.getFaqByBrand(req.params.brandId);
-    res.status(200).json({ success: true, data: faq, message: "FAQ fetched successfully" });
-  }),
+ getFaqById: catchAsync(async (req, res) => {
+  const faqId = req.params.id; // ✅ get id from route
+  const faq = await faqService.getFaqById(faqId); // pass id to service
+  res.status(200).json({ success: true, data: faq, message: "FAQ fetched successfully" });
+}),
+
 
   updateFaq: catchAsync(async (req, res) => {
     const updatedFaq = await faqService.updateFaq(req.params.id, req.body.content);
