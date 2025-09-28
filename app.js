@@ -8,7 +8,7 @@ const couponRoutes = require("./routes/coupon.routes");
 const blogRoutes = require("./routes/blog.routes");
 const statsRoutes = require("./routes/stats.routes");
 const faqRoutes = require("./routes/faq.routes");
-
+const webblogsRoutes = require('./routes/webblog.routes')
 const cors = require("cors");
 
 const app = express();
@@ -29,6 +29,7 @@ app.use("/api/admin/coupon", couponRoutes);
 app.use("/api/admin/blog", blogRoutes);
 app.use("/api/admin/stats", statsRoutes);
 app.use("/api/admin/faq", faqRoutes);
+app.use("/api/admin/webblog", webblogsRoutes);
 
 
 app.get("/", (req, res) => {
