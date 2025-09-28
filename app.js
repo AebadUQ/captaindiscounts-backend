@@ -6,6 +6,8 @@ const categoryRoutes = require("./routes/category.routes");
 const brandRoutes = require("./routes/brand.routes");
 const couponRoutes = require("./routes/coupon.routes");
 const blogRoutes = require("./routes/blog.routes");
+const statsRoutes = require("./routes/stats.routes");
+const faqRoutes = require("./routes/faq.routes");
 
 const cors = require("cors");
 
@@ -25,6 +27,8 @@ app.use("/api/admin/category", categoryRoutes);
 app.use("/api/admin/brand", brandRoutes);
 app.use("/api/admin/coupon", couponRoutes);
 app.use("/api/admin/blog", blogRoutes);
+app.use("/api/admin/stats", statsRoutes);
+app.use("/api/admin/faq", faqRoutes);
 
 
 app.get("/", (req, res) => {

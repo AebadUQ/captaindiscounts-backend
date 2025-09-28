@@ -35,9 +35,9 @@ getCategoryWithBrand: async () => {
       attributes: ["id", "name", "slug", "url", "description"],
     });
 
-    if (!categories || categories.length === 0) {
-      throw new ApiError(404, "No categories found");
-    }
+    // if (!categories || categories.length === 0) {
+    //   throw new ApiError(404, "No categories found");
+    // }
 
     return categories;
     },

@@ -36,7 +36,7 @@ const Coupon = sequelize.define(
         min: 1,
         max: 10,
       },
-      defaultValue: 5,
+      defaultValue: 1,
     },
     discountPercentage: {
       type: DataTypes.FLOAT,

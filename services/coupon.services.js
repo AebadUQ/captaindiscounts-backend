@@ -21,7 +21,9 @@ const couponService = {
     if (couponType === 'deal' && couponCode) {
       throw new ApiError(400, 'Coupon code should not be provided for type deal');
     }
-
+if (priority < 1 || priority > 10) {
+    throw new ApiError(400, 'Priority must be between 1 and 10');
+  }
     // ✅ Create coupon
     const coupon = await Coupon.create({
       name,
@@ -66,7 +68,7 @@ const couponService = {
                               where: { deletedAt: null },
 
           as: "brand",
-          attributes: ["id", "brandName"], // only bring required fields
+          attributes: ["id", "brandName","brandImage"], // only bring required fields
           include: [
       {
         model: Category,
@@ -200,7 +202,7 @@ const couponService = {
   });
 
   if (!rows || rows.length === 0) {
-    throw new ApiError("No coupons found", 404);
+    // throw new ApiError(404,"No coupons found");
   }
 
   const data = rows.map(coupon => ({

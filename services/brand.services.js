@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const Category = require('../models/category.model')
 const Brand = require('../models/brand.model')
 const Coupon = require('../models/coupon.model')
-
+const Blog = require('../models/blog.model')
 const { deleteBrand } = require("../controllers/brand.controller");
 const brandService = {
     createBrand: async ({ brandName, slug, storeurl, brandImage, affiliateUrl, description, categoryId }) => {
@@ -145,8 +145,8 @@ const brandService = {
 
     return brand;
   },
-  getBrandProfile: async (id) => {
-  // 1️⃣ Get brand
+getBrandProfile: async (id) => {
+  // 1️⃣ Get brand with its category
   const brand = await Brand.findOne({
     where: { id, deletedAt: null },
     include: [
@@ -158,9 +158,9 @@ const brandService = {
     ],
   });
 
-  if (!brand) throw new ApiError('No Brand found', 404);
+  if (!brand) throw new ApiError(404, 'No Brand found');
 
-  // 2️⃣ Get coupons ordered by priority
+  // 2️⃣ Get coupons for this brand
   const coupons = await Coupon.findAll({
     where: {
       brandId: brand.id,
@@ -178,36 +178,37 @@ const brandService = {
       'uses',
       'lastUsed',
       'detail',
-      'brandId',
       'priority',
-      
     ],
-    order: [['priority', 'ASC']], // 👈 order by priority
+    order: [['priority', 'ASC']],
   });
 
-  // 3️⃣ Attach coupons
+  // 3️⃣ Get blogs for this brand
+  const blogs = await Blog.findAll({
+    where: {
+      brandId: brand.id,
+      deletedAt: null,
+    },
+    order: [['publishDate', 'DESC']],
+  });
+
+  // 4️⃣ Get competitor brands (same category, limit 10, exclude current brand)
+  const competitors = await Brand.findAll({
+    where: {
+      categoryId: brand.categoryId,
+      deletedAt: null,
+      id: { [Op.ne]: brand.id }, // exclude current brand
+    },
+    attributes: ['id', 'brandName', 'categoryId',"brandImage","description"],
+    limit: 10,
+    order: [['id', 'ASC']],
+  });
+
+  // 5️⃣ Combine and return brand data
   const brandData = brand.toJSON();
   brandData.coupons = coupons;
-
-  // 🔥 Aggregates
-  const totalCoupons = coupons.length;
-  const dealCount = coupons.filter(c => c.couponType === 'deal').length;
-  const couponCodeCount = coupons.filter(c => c.couponType === 'coupon_code').length;
-
-  // Last updated (sabse latest lastUsed)
-  const lastUpdated =
-    coupons.length > 0
-      ? coupons
-          .filter(c => c.lastUsed !== null)
-          .sort((a, b) => new Date(b.lastUsed) - new Date(a.lastUsed))[0]?.lastUsed
-      : null;
-
-  brandData.stats = {
-    totalCoupons,
-    dealCount,
-    couponCodeCount,
-    lastUpdated,
-  };
+  brandData.blogs = blogs;
+  brandData.competitor = competitors; // 👈 competitors added
 
   return brandData;
 },

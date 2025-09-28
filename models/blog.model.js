@@ -44,7 +44,7 @@ const Blog = sequelize.define(
       allowNull: true,
     },
     keywords: {
-      type: DataTypes.STRING(500),
+  type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
     },
     publishDate: {
