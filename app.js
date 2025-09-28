@@ -9,15 +9,15 @@ const blogRoutes = require("./routes/blog.routes");
 const statsRoutes = require("./routes/stats.routes");
 const faqRoutes = require("./routes/faq.routes");
 const webblogsRoutes = require('./routes/webblog.routes')
-const cors = require("cors");
+// const cors = require("cors");
 
 const app = express();
 
 // Allow all origins
-app.use(cors({
-  origin: '*',
-  credentials: true, // note: credentials won't work with '*' in production
-}));
+// app.use(cors({
+//   origin: '*',
+//   credentials: true, // note: credentials won't work with '*' in production
+// }));
 
 app.use(express.json());
 app.use(morgan("dev"));
