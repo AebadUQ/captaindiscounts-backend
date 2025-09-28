@@ -14,29 +14,17 @@ const webblogsRoutes = require('./routes/webblog.routes');
 
 const app = express();
 
-// --- CORS CONFIG ---
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://captaindiscounts.com"
-];
-
+// --- CORS CONFIG: Allow All ---
 app.use(cors({
-  origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow curl or server-to-server requests
-    if(allowedOrigins.indexOf(origin) === -1){
-      let msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: '*', // allow all domains
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true // allow cookies or auth headers
+  credentials: true
 }));
 
 // Handle preflight OPTIONS requests globally
 app.options("*", cors({
-  origin: allowedOrigins,
+  origin: '*',
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
