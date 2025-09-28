@@ -9,9 +9,12 @@ const blogRoutes = require("./routes/blog.routes");
 const statsRoutes = require("./routes/stats.routes");
 const faqRoutes = require("./routes/faq.routes");
 const webblogsRoutes = require('./routes/webblog.routes')
+const cors = require("cors");
+
 // const cors = require("cors");
 
 const app = express();
+app.use(cors()); // allow all origins
 
 // Allow all origins
 // app.use(cors({
