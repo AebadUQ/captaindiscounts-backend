@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const app = require('./app');
 const sequelize = require('./config/database');
 const { createAdmin } = require("./services/auth.services");

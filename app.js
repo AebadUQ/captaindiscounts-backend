@@ -12,7 +12,7 @@ const webblogsRoutes = require('./routes/webblog.routes')
 const cors = require("cors");
 
 const app = express();
-const allowedOrigins = ["http://localhost:3000", "https://myapp.com"];
+const allowedOrigins = ["http://localhost:3001", "https://captaindiscounts.com/"];
 
 app.use(express.json());
 app.use(morgan("dev"));
