@@ -21,7 +21,6 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("dev"));
-
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/category", categoryRoutes);
 app.use("/api/admin/brand", brandRoutes);
