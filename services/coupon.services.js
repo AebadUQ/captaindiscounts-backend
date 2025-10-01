@@ -2,6 +2,7 @@ const Coupon = require('../models/coupon.model');
 const Brand = require('../models/brand.model');
 const ApiError = require('../utils/ApiError');
 const Category = require('../models/category.model');
+const { Op } = require("sequelize");
 
 const couponService = {
   createCoupon: async (data) => {
