@@ -42,57 +42,58 @@ if (priority < 1 || priority > 10) {
 
     return coupon;
   },
-  getAllCoupons: async ({ page = 1, limit = 10, search = "" }) => {
-    page = parseInt(page);
-    limit = parseInt(limit);
-    const offset = (page - 1) * limit;
-    const whereCondition = {
-      deletedAt: null,
-      ...(search
-        ? {
+ getAllCoupons: async ({ page = 1, limit = 10, search = "" }) => {
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const offset = (page - 1) * limit;
+
+  const whereCondition = {
+    deletedAt: null,
+    ...(search
+      ? {
           [Op.or]: [
             { name: { [Op.iLike]: `%${search}%` } },
-            { slug: { [Op.iLike]: `%${search}%` } },
+            { "$brand.brandName$": { [Op.iLike]: `%${search}%` } }, // match brand name
           ],
         }
-        : {}),
-    };
+      : {}),
+  };
 
-    const { rows, count } = await Coupon.findAndCountAll({
-      where: whereCondition,
-      limit,
-      offset,
-      order: [["createdAt", "DESC"]],
-        include: [
-        {
-          model: Brand,
-                              where: { deletedAt: null },
-
-          as: "brand",
-          attributes: ["id", "brandName","brandImage"], // only bring required fields
-          include: [
+  const { rows, count } = await Coupon.findAndCountAll({
+    where: whereCondition,
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    include: [
       {
-        model: Category,
-        as: "category",
-        attributes: ["id", "name"],
+        model: Brand,
+        as: "brand",
         where: { deletedAt: null },
-        required: true, // only include brand if category exists
+        attributes: ["id", "brandName", "brandImage"],
+        include: [
+          {
+            model: Category,
+            as: "category",
+            attributes: ["id", "name"],
+            where: { deletedAt: null },
+            required: true,
+          },
+        ],
       },
     ],
-        },
-      ],
-    });
+  });
 
-    return {
-      data: rows, // actual data
-      metaData: {
-        total: count,
-        page,
-        pageSize: limit,
-        totalPages: Math.ceil(count / limit),
-      },
-    };
-  },
+  return {
+    data: rows,
+    metaData: {
+      total: count,
+      page,
+      pageSize: limit,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+},
+
   getCouponByID: async (id) => {
     const coupon = await Coupon.findOne({ where: { id, deletedAt: null },
      include: [
