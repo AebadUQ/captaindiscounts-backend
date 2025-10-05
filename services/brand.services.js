@@ -211,7 +211,7 @@ getBrandProfile: async (id) => {
       deletedAt: null,
       id: { [Op.ne]: brand.id }, // exclude current brand
     },
-    attributes: ["id", "brandName", "categoryId", "brandImage", "description"],
+    attributes: ["id", "brandName", "categoryId", "brandImage", "description","slug"],
     limit: 10,
     order: [["id", "ASC"]],
   });
