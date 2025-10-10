@@ -74,7 +74,19 @@ const couponController = {
       data: result.data,
       metaData: result.metaData,
     });
+    
   }),
+getTop5Coupons: catchAsync(async (req, res) => {
+    console.log("ssssssssssssssssssssssssssssss")
+  const result = await couponService.getTop5Coupons();
+
+  res.status(200).json({
+    success: true,
+    message: "Ranked coupons fetched successfully",
+    data: result,
+  });
+}),
+
 
 }
 module.exports = couponController;

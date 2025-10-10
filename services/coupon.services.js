@@ -233,6 +233,32 @@ if (priority < 1 || priority > 10) {
     },
   };
 },
+getTop5Coupons: async () => {
+  const topCoupons = await Coupon.findAll({
+    where: { deletedAt: null },
+    order: [["uses", "DESC"]], // highest uses first
+    limit: 5,
+    include: [
+      {
+        model: Brand,
+        as: "brand",
+        where: { deletedAt: null },
+        attributes: ["id", "brandName", "brandImage"],
+        include: [
+          {
+            model: Category,
+            as: "category",
+            attributes: ["id", "name"],
+            where: { deletedAt: null },
+            required: true,
+          },
+        ],
+      },
+    ],
+  });
+
+  return topCoupons;
+},
 
 };
 
