@@ -12,7 +12,7 @@ const webblogsRoutes = require('./routes/webblog.routes')
 const cors = require("cors");
 
 const app = express();
-const allowedOrigins = ["http://localhost:3001", "https://captaindiscounts.com","https://dealsnapr.vercel.app"];
+const allowedOrigins = ["http://localhost:3001", "https://captaindiscounts.com","https://dealsnapr.vercel.app","https://wiselyspent.vercel.app/"];
 app.use(
   cors({
     origin: allowedOrigins,
