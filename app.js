@@ -11,6 +11,7 @@ const faqRoutes = require("./routes/faq.routes");
 const webblogsRoutes = require('./routes/webblog.routes')
 const contactRoutes = require("./routes/contact.routes");
 const adminContactMessageRoutes = require("./routes/adminContactMessage.routes");
+const uploadRoutes = require("./routes/upload.routes");
 const cors = require("cors");
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(
 app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api/contact", contactRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/category", categoryRoutes);
 app.use("/api/admin/brand", brandRoutes);
