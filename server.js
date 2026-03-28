@@ -1,7 +1,7 @@
 require('dotenv').config();
 const app = require('./app');
 const sequelize = require('./config/database');
-const { createAdmin } = require("./services/auth.services");
+const { ensureSeededAdmin } = require("./services/auth.services");
 require('module-alias/register');
 
 const PORT = process.env.PORT || 5000;
@@ -13,7 +13,7 @@ sequelize.authenticate()
   })
   .then(async () => {
     // seed admin from .env
-    await createAdmin(
+    await ensureSeededAdmin(
       process.env.ADMIN_NAME,
       process.env.ADMIN_EMAIL,
       process.env.ADMIN_PASSWORD

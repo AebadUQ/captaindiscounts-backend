@@ -22,7 +22,7 @@ const adminController = {
       const { token, admin } = await adminService.loginAdmin(email, password);
 
       res.status(200).json({
-        success: 200,
+        success: true,
         message: "Admin login successful",
         token,
         data: admin,
@@ -32,6 +32,24 @@ const adminController = {
         success: false,
         message: error.message || "Login failed",
       });
+    }
+  },
+
+  getCurrentAdmin: async (req, res, next) => {
+    try {
+      const admin = await adminService.getAdminById(req.user.id);
+      if (!admin) {
+        return res.status(401).json({
+          success: false,
+          message: "Admin not found or no longer valid",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        data: admin,
+      });
+    } catch (error) {
+      next(error);
     }
   },
 };

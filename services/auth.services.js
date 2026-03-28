@@ -2,17 +2,25 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/auth.model");
 
+function toPublicAdmin(admin) {
+  if (!admin) return null;
+  const plain = admin.get ? admin.get({ plain: true }) : { ...admin };
+  const { password, ...rest } = plain;
+  return rest;
+}
+
 const adminService = {
+  toPublicAdmin,
+
   createAdmin: async (name, email, password) => {
     const existingAdmin = await Admin.findOne({ where: { email } });
     if (existingAdmin) {
-      console.log("⚠️ Admin already exists, skipping creation.");
-      return existingAdmin;
+      throw new Error("An admin with this email already exists");
     }
 
     const hashedPassword = await bcrypt.hash(
       password,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS, 10)
+      parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 10
     );
 
     const admin = await Admin.create({
@@ -21,11 +29,7 @@ const adminService = {
       password: hashedPassword,
     });
 
-    return {
-      id: admin.id,
-      name: admin.name,
-      email: admin.email,
-    };
+    return toPublicAdmin(admin);
   },
 
   loginAdmin: async (email, password) => {
@@ -39,17 +43,38 @@ const adminService = {
       throw new Error("Invalid email or password");
     }
 
-    // ✅ Generate JWT
     const token = jwt.sign(
-      { id: admin.id, email: admin.email },
+      {
+        id: admin.id,
+        email: admin.email,
+        role: "admin",
+      },
       process.env.JWT_SECRET,
       { expiresIn: "9d" }
     );
-console.log("token",token)
+
     return {
       token,
-      admin: admin,
+      admin: toPublicAdmin(admin),
     };
+  },
+
+  getAdminById: async (id) => {
+    const admin = await Admin.findByPk(id);
+    return toPublicAdmin(admin);
+  },
+
+  /** Idempotent: used by server startup when ADMIN_* env vars are set. */
+  ensureSeededAdmin: async (name, email, password) => {
+    if (!name || !email || !password) {
+      console.warn("ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD not set; skipping admin seed.");
+      return null;
+    }
+    const existing = await Admin.findOne({ where: { email } });
+    if (existing) {
+      return toPublicAdmin(existing);
+    }
+    return adminService.createAdmin(name, email, password);
   },
 };
 

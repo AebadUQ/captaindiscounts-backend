@@ -10,7 +10,7 @@ router.patch("/use/:id", couponController.updateUses);
 
 router.get("/", couponController.getAllCoupons);
 router.get("/:id", couponController.getCouponByID);  // ⚠ this matches /ranked-promo-code too!
-router.put("/:id", couponController.updateCoupon);
+router.put("/:id", authMiddleware, couponController.updateCoupon);
 router.delete("/:id", authMiddleware, couponController.deleteCoupon);
 
 
