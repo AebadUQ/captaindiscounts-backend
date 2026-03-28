@@ -52,6 +52,23 @@ const adminController = {
       next(error);
     }
   },
+
+  changePassword: async (req, res, next) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      await adminService.changePassword(
+        req.user.id,
+        currentPassword,
+        newPassword
+      );
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = adminController;

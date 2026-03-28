@@ -14,5 +14,10 @@ router.post(
 );
 router.post("/login", adminController.loginAdmin);
 router.get("/me", authMiddleware, adminController.getCurrentAdmin);
+router.patch(
+  "/change-password",
+  authMiddleware,
+  adminController.changePassword
+);
 
 module.exports = router;

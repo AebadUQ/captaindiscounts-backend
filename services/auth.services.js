@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/auth.model");
+const ApiError = require("../utils/ApiError");
 
 function toPublicAdmin(admin) {
   if (!admin) return null;
@@ -62,6 +63,35 @@ const adminService = {
   getAdminById: async (id) => {
     const admin = await Admin.findByPk(id);
     return toPublicAdmin(admin);
+  },
+
+  changePassword: async (adminId, currentPassword, newPassword) => {
+    const nextPwd = String(newPassword ?? "").trim();
+    if (!nextPwd || nextPwd.length < 8) {
+      throw new ApiError(400, "New password must be at least 8 characters");
+    }
+    if (String(currentPassword ?? "").trim() === nextPwd) {
+      throw new ApiError(400, "New password must be different from the current password");
+    }
+
+    const admin = await Admin.findByPk(adminId);
+    if (!admin) {
+      throw new ApiError(404, "Admin not found");
+    }
+
+    const isMatch = await bcrypt.compare(
+      String(currentPassword ?? ""),
+      admin.password
+    );
+    if (!isMatch) {
+      throw new ApiError(400, "Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      nextPwd,
+      parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 10
+    );
+    await admin.update({ password: hashedPassword });
   },
 
   /** Idempotent: used by server startup when ADMIN_* env vars are set. */
