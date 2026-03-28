@@ -9,6 +9,8 @@ const blogRoutes = require("./routes/blog.routes");
 const statsRoutes = require("./routes/stats.routes");
 const faqRoutes = require("./routes/faq.routes");
 const webblogsRoutes = require('./routes/webblog.routes')
+const contactRoutes = require("./routes/contact.routes");
+const adminContactMessageRoutes = require("./routes/adminContactMessage.routes");
 const cors = require("cors");
 
 const app = express();
@@ -21,6 +23,7 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("dev"));
+app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/category", categoryRoutes);
 app.use("/api/admin/brand", brandRoutes);
@@ -29,7 +32,7 @@ app.use("/api/admin/blog", blogRoutes);
 app.use("/api/admin/stats", statsRoutes);
 app.use("/api/admin/faq", faqRoutes);
 app.use("/api/admin/webblog", webblogsRoutes);
-
+app.use("/api/admin/contact-messages", adminContactMessageRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
