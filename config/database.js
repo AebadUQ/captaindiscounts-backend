@@ -8,9 +8,16 @@ const logging = process.env.DB_LOGGING === "true" ? console.log : false;
  * Neon requires SSL; pooler URLs usually include sslmode=require.
  */
 function createSequelize() {
-  const databaseUrl = process.env.DATABASE_URL?.trim();
+  // Support DATABASE_URL (common) and DATABASE_URI (some hosts / docs use this name)
+  const databaseUrl = (
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_URI
+  )?.trim();
 
   if (databaseUrl) {
+    if (process.env.NODE_ENV !== "test") {
+      console.log("[database] Using DATABASE_URL / DATABASE_URI for Postgres");
+    }
     const isNeon =
       databaseUrl.includes("neon.tech") || databaseUrl.includes("neon.database");
 
@@ -29,6 +36,17 @@ function createSequelize() {
             : false,
       },
     });
+  }
+
+  if (process.env.NODE_ENV !== "test") {
+    console.log(
+      "[database] DATABASE_URL and DATABASE_URI are unset — using DB_HOST / DB_USER / DB_NAME"
+    );
+    if ((process.env.DB_USER || "").toLowerCase() === "root") {
+      console.warn(
+        "[database] DB_USER is \"root\". Neon expects the user from your connection string (e.g. neondb_owner). Set DATABASE_URL on the server."
+      );
+    }
   }
 
   return new Sequelize(
