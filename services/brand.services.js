@@ -6,8 +6,6 @@ const Coupon = require('../models/coupon.model')
 const Blog = require('../models/blog.model')
 const Faq = require('../models/faq.model')
 
-const { deleteBrand } = require("../controllers/brand.controller");
-
 const categoryInclude = {
   model: Category,
   as: "category",
