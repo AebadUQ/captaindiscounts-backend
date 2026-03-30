@@ -20,7 +20,7 @@ const Blog = sequelize.define(
       allowNull: true,
     },
     content: {
-      type: DataTypes.TEXT("long"), // for full blog content
+      type: DataTypes.TEXT, // long content (PG uses plain TEXT)
       allowNull: false,
     },
     canonicalUrl: {

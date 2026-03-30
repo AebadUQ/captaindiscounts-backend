@@ -18,7 +18,7 @@ const WebBlog = sequelize.define(
       allowNull: true,
     },
     content: {
-      type: DataTypes.TEXT("long"), // full blog content
+      type: DataTypes.TEXT, // long text (PG: plain TEXT; no "long" variant)
       allowNull: false,
     },
     canonicalUrl: {

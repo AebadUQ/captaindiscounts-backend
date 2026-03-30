@@ -6,7 +6,7 @@ const Faq = sequelize.define(
   "Faq",
   {
     content: {
-      type: DataTypes.TEXT("long"),
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     brandId: {
