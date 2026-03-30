@@ -24,5 +24,7 @@ sequelize.authenticate()
     });
   })
   .catch((err) => {
-    console.error("Failed to connect DB:", err);
+    console.error("Failed to connect DB — server will not start. Fix DATABASE_URL / Neon and restart.");
+    console.error(err);
+    process.exit(1);
   });
