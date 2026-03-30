@@ -93,5 +93,14 @@ const brandController = {
 
     ),
 
+    getBrandProfileBySlug: catchAsync(async (req, res) => {
+        const brand = await brandService.getBrandProfileBySlug(req.params.slug);
+        res.status(200).json({
+            success: true,
+            message: "Brand Profile fetched successfully",
+            data: brand,
+        });
+    }),
+
 }
 module.exports = brandController;
